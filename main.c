@@ -23,7 +23,8 @@ int get_connection(int node_number, int con_number, struct con *r_con);
 double dist_between_nodes(int n1, int n2, struct nodes *r_n);
 int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone, double *Done);
 int find(double *tab, double val);
-void print_tab(double *tab);
+void print_tab_vert(double *tab);
+void print_tab_hori(double *tab);
 
 int main()
 {
@@ -43,13 +44,44 @@ int main()
     init_table(distance, node_number, nDone, Done, 6);
 
     int n = 5;
+    //if()
+    distance[0] = get_closest_node(conn, node, 0, nDone, Done);
+   // print_tab_vert(nDone);
+    //print_tab_vert(Done);
+    print_tab_hori(distance);
+    print_tab_hori(node_number);
+    int i=0;
+    int temp=0;
+    //while(1)
+    {
+        temp = get_closest_node(conn, node, i, nDone, Done);
+        distance[temp]=dist_between_nodes(i, temp, node);
+        temp = get_closest_node(conn, node, i, nDone, Done);
+        distance[temp]=dist_between_nodes(i, temp, node);
+        temp = get_closest_node(conn, node, i, nDone, Done);
+        distance[temp]=dist_between_nodes(i, temp, node);
+        //if(temp==-1)
+        //{
+        //    break;
+        //}
 
-    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
-    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
-    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
-    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
-    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
-    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+
+        //i++;
+    }
+    print_tab_vert(nDone);
+    print_tab_vert(Done);
+    print_tab_hori(distance);
+    print_tab_hori(node_number);
+    //node_number[0]
+    //distance[1] = get_closest_node(conn, node, 1, nDone, Done);
+
+
+    //printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+   // printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+   // printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    //printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+   // printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    //printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
 
     //printf("%i",  find(nDone, 7));
 
@@ -98,7 +130,7 @@ int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone
 
 }
 
-void print_tab(double *tab)
+void print_tab_vert(double *tab)
 {
     printf("----------------------------\n");
     int i=0;
@@ -106,6 +138,18 @@ void print_tab(double *tab)
     {
         printf("tab[%d]: %f \n",i, tab[i]);
     }
+    printf("----------------------------\n");
+}
+
+void print_tab_hori(double *tab)
+{
+    printf("----------------------------\n");
+    int i;
+    for(i=0; i<6;i++)
+    {
+        printf("%8.3f | ", tab[i]);
+    }
+    printf("\n");
     printf("----------------------------\n");
 }
 
