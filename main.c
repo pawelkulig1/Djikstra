@@ -20,6 +20,10 @@ double dist(double x1, double y1, double x2, double y2);
 void init_table(double *r_dist, double *r_nnumber, double *r_nDone, double *r_Done, int s);
 void init_con(struct con *r_con);
 int get_connection(int node_number, int con_number, struct con *r_con);
+double dist_between_nodes(int n1, int n2, struct nodes *r_n);
+int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone, double *Done);
+int find(double *tab, double val);
+void print_tab(double *tab);
 
 int main()
 {
@@ -32,18 +36,84 @@ int main()
     //printf("%f", dist(-4,4,-5,5));
     //printf("%f", node[1].x);
 
-    double distance[6]; //distance between nodes
-    double node_number[6]; //number of node
-    double nDone[6]; //nodes not calculated
-    double Done[6]; //nodes calculated
+    double distance[6]; //distance between nodes d[]
+    double node_number[6]; //number of node p[]
+    double nDone[6]; //nodes not calculated Q
+    double Done[6]; //nodes calculated S
     init_table(distance, node_number, nDone, Done, 6);
 
-    printf("%i", get_connection(2,0,conn)); //works!
+    int n = 5;
 
+    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+    printf("return : %i\n", get_closest_node(conn, node, n, nDone, Done));
+
+    //printf("%i",  find(nDone, 7));
 
 
 
     return 0;
+}
+
+int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone, double *Done) //working
+{
+    if(nDone[nnum]==nnum) //closest to me is me
+    {
+        nDone[nnum] = -1;
+        Done[find(Done, -1)] = nnum;
+        return nnum;
+    }
+
+    double closest = 100000; //should be bigger than longest possible distance between 2 nodes
+    int closest_node = -1;
+    int i=0;
+    double temp = 0;
+
+    while(1)
+    {
+        temp = dist_between_nodes(nnum, get_connection(nnum, i, r_c), r_n); //distance between nodes(nnum and that one on the and of i connection)
+
+        if(temp == -1) //every connection checked - closest chosen
+        {
+            nDone[closest_node] = -1;
+            Done[find(Done, -1)] = closest_node;
+            return closest_node;
+        }
+
+        if(temp<closest)
+        {
+            if(find(nDone, get_connection(nnum,i, r_c))!=-1) //get_connection convert number of connection too number of node, i is connection number
+            {
+                closest_node = get_connection(nnum,i, r_c);
+                closest = temp;
+            }
+        }
+
+        i++;
+    }
+    return -1;
+
+}
+
+void print_tab(double *tab)
+{
+    printf("----------------------------\n");
+    int i=0;
+    for(i; i<6;i++)
+    {
+        printf("tab[%d]: %f \n",i, tab[i]);
+    }
+    printf("----------------------------\n");
+}
+
+
+double dist_between_nodes(int n1, int n2, struct nodes *r_n)
+{
+    if(n1 == -1 || n2 == -1) return -1;
+    return (dist(r_n[n1].x, r_n[n1].y, r_n[n2].x, r_n[n2].y));
 }
 
 int get_connection(int node_number, int con_number, struct con *r_con)
@@ -94,6 +164,17 @@ double dist(double x1, double y1, double x2, double y2)
     return sqrt(pow(x1-x2,2) + pow(y1-y2,2));
 
 }
+
+int find(double *tab, double val)
+{
+    int i=0;
+    for(i;i<6;i++)
+    {
+        if(tab[i] == val) return i;
+    }
+    return -1;
+}
+
 void get_data_from_file(struct nodes *n_rcv, struct con *c_rcv)
 {
     /*FILE *f;
