@@ -38,7 +38,7 @@ int main()
     double Done[6]; //nodes calculated
     init_table(distance, node_number, nDone, Done, 6);
 
-    printf("%i", get_connection(4,2,conn)); //works!
+    printf("%i", get_connection(2,0,conn)); //works!
 
 
 
@@ -54,9 +54,12 @@ int get_connection(int node_number, int con_number, struct con *r_con)
     {
         if(r_con[i].b == node_number || r_con[i].e == node_number)
         {
-            //printf("%i", i);
-
-            if(c==con_number) return i;
+            /*if(c==con_number) return i;*/
+            if(c==con_number)
+            {
+                if(r_con[i].b == node_number) return r_con[i].e;
+                else return r_con[i].b;
+            }
             c++; //we should reach this standard and leave c :)
         }
     }
