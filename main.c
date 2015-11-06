@@ -45,7 +45,7 @@ int main()
 
     int n = 5;
     //if()
-    distance[0] = get_closest_node(conn, node, 0, nDone, Done);
+    distance[0] = 0;
    // print_tab_vert(nDone);
     //print_tab_vert(Done);
     print_tab_hori(distance);
