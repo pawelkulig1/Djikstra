@@ -21,7 +21,7 @@ void init_table(double *r_dist, double *r_nnumber, double *r_nDone, double *r_Do
 void init_con(struct con *r_con);
 int get_connection(int node_number, int con_number, struct con *r_con);
 double dist_between_nodes(int n1, int n2, struct nodes *r_n);
-int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone, double *Done);
+int get_every_node(struct con *r_c, struct nodes *r_n, int nnum, int order);
 int find(double *tab, double val);
 void print_tab_vert(double *tab);
 void print_tab_hori(double *tab);
@@ -45,21 +45,46 @@ int main()
 
     int n = 5;
     //if()
-    distance[0] = get_closest_node(conn, node, 0, nDone, Done);
+    distance[0] = 0;
+    node_number[0] = -1;
+    nDone[0] = -1;
+    Done[0]  =0;
+
    // print_tab_vert(nDone);
     //print_tab_vert(Done);
-    print_tab_hori(distance);
-    print_tab_hori(node_number);
+    //print_tab_hori(distance);
+    //print_tab_hori(node_number);
     int i=0;
-    int temp=0;
-    //while(1)
+    int next_node=0;
+    double next_dist = 0;
+    while(1)
     {
-        temp = get_closest_node(conn, node, i, nDone, Done);
+
+        next_node = get_every_node(conn, node, i, 0);
+        if(next_node == -1) break;
+        next_dist = dist_between_nodes(i, next_node, node);
+
+        if(distance[next_node]>distance[i]+next_dist)
+        {
+            distance[next_node]=next_dist;
+            node_number[next_node] = i;
+        }
+        i++;
+
+
+
+
+        /*temp = get_every_node(conn, node, i, 1);
+        distance[temp]=dist_between_nodes(i, temp, node);
+        node_number[temp] = i;
+        temp = get_every_node(conn, node, i, 2);
+        distance[temp]=dist_between_nodes(i, temp, node);
+        node_number[temp] = i;*/
+
+        /*temp = get_closest_node(conn, node, i, nDone, Done);
         distance[temp]=dist_between_nodes(i, temp, node);
         temp = get_closest_node(conn, node, i, nDone, Done);
-        distance[temp]=dist_between_nodes(i, temp, node);
-        temp = get_closest_node(conn, node, i, nDone, Done);
-        distance[temp]=dist_between_nodes(i, temp, node);
+        distance[temp]=dist_between_nodes(i, temp, node);*/
         //if(temp==-1)
         //{
         //    break;
@@ -90,38 +115,25 @@ int main()
     return 0;
 }
 
-int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone, double *Done) //working
+int get_every_node(struct con *r_c, struct nodes *r_n, int nnum, int order) //order - which node return (0 - closest, 1 - second and so on)
 {
-    if(nDone[nnum]==nnum) //closest to me is me
-    {
-        nDone[nnum] = -1;
-        Done[find(Done, -1)] = nnum;
-        return nnum;
-    }
-
-    double closest = 100000; //should be bigger than longest possible distance between 2 nodes
     int closest_node = -1;
     int i=0;
     double temp = 0;
-
     while(1)
     {
         temp = dist_between_nodes(nnum, get_connection(nnum, i, r_c), r_n); //distance between nodes(nnum and that one on the and of i connection)
 
-        if(temp == -1) //every connection checked - closest chosen
+        if(temp == -1) //no more nodes
         {
-            nDone[closest_node] = -1;
-            Done[find(Done, -1)] = closest_node;
-            return closest_node;
+            return -1;
         }
 
-        if(temp<closest)
+        closest_node = get_connection(nnum, i, r_c);
+
+        if(i == order)
         {
-            if(find(nDone, get_connection(nnum,i, r_c))!=-1) //get_connection convert number of connection too number of node, i is connection number
-            {
-                closest_node = get_connection(nnum,i, r_c);
-                closest = temp;
-            }
+            return closest_node;
         }
 
         i++;
