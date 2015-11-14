@@ -1,0 +1,268 @@
+//http://eduinf.waw.pl/inf/alg/001_search/0138.php
+
+#include <stdio.h>
+#include <math.h>
+
+#define INFINITY 10000
+#define NNODES 6
+#define EMPTYVAL -1
+
+struct nodes
+{
+    double x; //x, y of node position
+    double y;
+};
+
+struct con
+{
+    double b; //number of node where connection begins
+    double e; //where it ends
+};
+
+void get_data_from_file(struct nodes *n_rcv, struct con *c_rcv);
+double dist(double x1, double y1, double x2, double y2);
+void init_table(double *r_dist, double *r_nnumber, double *r_nDone, double *r_Done, int s);
+void init_con(struct con *r_con);
+int get_connection(int node_number, int con_number, struct con *r_con);
+double dist_between_nodes(int n1, int n2, struct nodes *r_n);
+int get_every_node(struct con *r_c, struct nodes *r_n, int nnum, int order);
+void print_tab_vert(double *tab, int len);
+void print_tab_hori(double *tab, int len);
+void bubble_sort(double *tab, int len);
+int get_element_sorted(double *tab, int len, int n);
+
+
+int main()
+{
+    struct nodes node[NNODES];
+    struct con conn[NNODES*(NNODES-1)];
+    init_con(conn); //set every element to -1
+    get_data_from_file(node, conn);
+    //printf("%f", dist(-4,4,-5,5));
+    //printf("%f", node[1].x);
+
+    double distance[NNODES]; //distance between nodes d[]
+    double node_number[NNODES]; //number of node p[]
+    double nDone[NNODES]; //nodes not calculated Q
+    double Done[NNODES]; //nodes calculated S
+    init_table(distance, node_number, nDone, Done, NNODES);
+/*
+    distance[0] = 0;
+    node_number[0] = -1;
+    nDone[0] = -1;
+    Done[0]  =0;
+
+    int i=0;
+    int j=0;
+    int next_node=0;
+    double next_dist = 0;
+    while(1)
+    {
+
+        next_node = get_every_node(conn, node, i, j);
+        if(next_node == -1) break;
+        next_dist = dist_between_nodes(i, next_node, node);
+
+        if(distance[next_node]>distance[i]+next_dist)
+        {
+            distance[next_node]=next_dist+distance[i];
+            node_number[next_node] = i;
+        }
+        j++;
+    }
+    printf("%d \n", get_element_sorted(distance,NNODES, 2));
+    print_tab_vert(nDone,NNODES);
+    print_tab_vert(Done,NNODES);
+    print_tab_hori(distance,NNODES);
+    print_tab_hori(node_number,NNODES);*/
+
+    double tab[5]={4,1,1,0,1};
+    double tab2[5]={4,1,1,0,1};
+    printf("%d \n", get_element_sorted(tab,5, 1));
+
+    return 0;
+}
+
+void bubble_sort(double *tab, int len)
+{
+    double temp;
+    int i=0;
+    int j=0;
+    for(j=0;j<len;j++)
+    {
+        for(i=0;i<len-1;i++)
+        {
+            if(tab[i]>tab[i+1])
+            {
+                temp = tab[i];
+                tab[i]= tab[i+1];
+                tab[i+1]=temp;
+            }
+
+        }
+    }
+}
+int get_element_sorted(double *tab, int len, int n ) //przyjmuje argumenty sprawdza z tablica Done, i sprawdza czy jest bezposrednie dojscie
+{
+    double temp_tab[len];
+    int i=0;
+    for(i;i<len;i++) //make a copy of tab in order not to change original tab
+    {
+        temp_tab[i] = tab[i];
+    }
+
+    bubble_sort(temp_tab, len);
+    for(i=0;i<len;i++)
+    {
+        if(temp_tab[n] == tab[i])
+        {
+            //if(i<n) continue; //in case of n same values
+            return i;
+        }
+    }
+    //return n;
+}
+
+int get_every_node(struct con *r_c, struct nodes *r_n, int nnum, int order) //order - which node return (0 - closest, 1 - second and so on)
+{
+    int closest_node = EMPTYVAL;
+    int i=0;
+    double temp = 0;
+    while(1)
+    {
+        temp = dist_between_nodes(nnum, get_connection(nnum, i, r_c), r_n); //distance between nodes(nnum and that one on the and of i connection)
+
+        if(temp == EMPTYVAL) //no more nodes
+        {
+            return EMPTYVAL;
+        }
+
+        closest_node = get_connection(nnum, i, r_c);
+
+        if(i == order)
+        {
+            return closest_node;
+        }
+
+        i++;
+    }
+    return EMPTYVAL;
+
+}
+
+void print_tab_vert(double *tab, int len)
+{
+    printf("----------------------------\n");
+    int i=0;
+    for(i; i<len;i++)
+    {
+        printf("tab[%d]: %f \n",i, tab[i]);
+    }
+    printf("----------------------------\n");
+}
+
+void print_tab_hori(double *tab, int len)
+{
+    printf("----------------------------\n");
+    int i;
+    for(i=0; i<len;i++)
+    {
+        printf("%8.3f | ", tab[i]);
+    }
+    printf("\n");
+    printf("----------------------------\n");
+}
+
+double dist_between_nodes(int n1, int n2, struct nodes *r_n)
+{
+    if(n1 == EMPTYVAL || n2 == EMPTYVAL) return EMPTYVAL;
+    return (dist(r_n[n1].x, r_n[n1].y, r_n[n2].x, r_n[n2].y));
+}
+
+int get_connection(int node_number, int con_number, struct con *r_con)
+{
+    int i=0;
+    int c=0;
+    for(i;i<NNODES*(NNODES-1);i++)
+    {
+        if(r_con[i].b == node_number || r_con[i].e == node_number)
+        {
+            /*if(c==con_number) return i;*/
+            if(c==con_number)
+            {
+                if(r_con[i].b == node_number) return r_con[i].e;
+                else return r_con[i].b;
+            }
+            c++; //we should reach this standard and leave c :)
+        }
+    }
+    return EMPTYVAL;
+}
+
+void init_table(double *r_dist, double *r_nnumber, double *r_nDone, double *r_Done, int s)
+{
+    int i=0;
+    for(i;i<s;i++)
+    {
+        r_dist[i] = INFINITY;
+        r_nnumber[i] = EMPTYVAL;
+        r_nDone[i] = i;
+        r_Done[i] = EMPTYVAL;
+    }
+    r_dist[0]=0; //always 0 to itself
+}
+
+void init_con(struct con *r_con)
+{
+    int i=0;
+    for(i; i<NNODES*(NNODES-1);i++)
+    {
+        r_con[i].b=EMPTYVAL;
+        r_con[i].e=EMPTYVAL;
+    }
+}
+
+double dist(double x1, double y1, double x2, double y2)
+{
+    return sqrt(pow(x1-x2,2) + pow(y1-y2,2));
+}
+
+void get_data_from_file(struct nodes *n_rcv, struct con *c_rcv)
+{
+    /*FILE *f;
+    f = fopen("nodes.txt", "rt");
+    while((c=fgetc(f)) != EOF) printf("%c", c);*/
+
+    n_rcv[0].x = 0;
+    n_rcv[0].y = 0;
+    n_rcv[1].x = -5;
+    n_rcv[1].y = 1;
+    n_rcv[2].x = -1;
+    n_rcv[2].y = 5;
+    n_rcv[3].x = -4;
+    n_rcv[3].y = 6;
+    n_rcv[4].x = 1;
+    n_rcv[4].y = 8;
+    n_rcv[5].x = 4;
+    n_rcv[5].y = 6;
+
+    c_rcv[0].b = 0;
+    c_rcv[0].e = 1;
+    c_rcv[1].b = 0;
+    c_rcv[1].e = 2;
+    c_rcv[2].b = 0;
+    c_rcv[2].e = 5;
+    c_rcv[3].b = 1;
+    c_rcv[3].e = 3;
+    c_rcv[4].b = 1;
+    c_rcv[4].e = 2;
+    c_rcv[5].b = 2;
+    c_rcv[5].e = 3;
+    c_rcv[6].b = 2;
+    c_rcv[6].e = 5;
+    c_rcv[7].b = 3;
+    c_rcv[7].e = 4;
+    c_rcv[8].b = 4;
+    c_rcv[8].e = 5;
+
+}
