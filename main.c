@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <windows.h>
 
 #define INFINITY 10000
 #define NNODES 6
@@ -28,8 +29,14 @@ double dist_between_nodes(int n1, int n2, struct nodes *r_n);
 int get_every_node(struct con *r_c, struct nodes *r_n, int nnum, int order);
 void print_tab_vert(double *tab, int len);
 void print_tab_hori(double *tab, int len);
-void bubble_sort(double *tab, int len);
-int get_element_sorted(double *tab, int len, int n);
+int get_element_sorted(double *r_nDone, int n, struct nodes *n_rcv, struct con *c_rcv);
+int find(double *tab, double val); //1 if exist
+int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone, double *Done); //working
+void reset(double *nDone2, double *Done2);
+
+
+double nDone_l=NNODES;
+
 
 
 int main()
@@ -40,115 +47,171 @@ int main()
     get_data_from_file(node, conn);
     //printf("%f", dist(-4,4,-5,5));
     //printf("%f", node[1].x);
-
+    //double nDone_l=NNODES;
     double distance[NNODES]; //distance between nodes d[]
     double node_number[NNODES]; //number of node p[]
     double nDone[NNODES]; //nodes not calculated Q
     double Done[NNODES]; //nodes calculated S
     init_table(distance, node_number, nDone, Done, NNODES);
-/*
+
     distance[0] = 0;
     node_number[0] = -1;
     nDone[0] = -1;
     Done[0]  =0;
 
     int i=0;
-    int j=0;
     int next_node=0;
     double next_dist = 0;
+
+    double nDone2[NNODES];
+    double Done2[NNODES];
+
+    /*for(i=0; i<5;i++)
+    {
+        next_node=0;
+        next_dist = 0;
+        reset(nDone2, Done2);
+        print_tab_hori(nDone2,NNODES);
+        print_tab_hori(Done2,NNODES);
+
+        printf("reset! \n");
+        while(1)
+        {
+
+            next_node = get_closest_node(conn, node, i, nDone2, Done2);
+            //reset(nDone2, Done2);
+            Done[find(Done, -1)] = next_node;
+            nDone[next_node] = -1;
+
+
+            printf("\n%d:   ", i);
+            printf("next_node: %d", next_node);
+
+            Sleep(1000);
+
+
+
+
+            if(next_node == -1) break;
+            next_dist = dist_between_nodes(i, next_node, node);
+
+            if(distance[next_node]>distance[i]+next_dist)
+            {
+                distance[next_node]=next_dist+distance[i];
+                node_number[next_node] = i;
+            }
+            //j++;
+
+            /////////////////////////////////////
+        }
+    }*/
+
+
+    //
+    next_node = 0;
+    int next_node2=-1;
+    double temp_dist = 0;
+
+    reset(nDone2, Done2);
+
+
     while(1)
     {
+        next_node2 = get_closest_node(conn, node, next_node, nDone2, Done2);
+        if(next_node2 == -1) break;
+        printf("%d \n", next_node2);
+        temp_dist = dist_between_nodes(next_node, next_node2, node);
 
-        next_node = get_every_node(conn, node, i, j);
-        if(next_node == -1) break;
-        next_dist = dist_between_nodes(i, next_node, node);
-
-        if(distance[next_node]>distance[i]+next_dist)
+        if(distance[next_node2]>temp_dist+distance[next_node]) //to be checked
         {
-            distance[next_node]=next_dist+distance[i];
-            node_number[next_node] = i;
+            distance[next_node2] = temp_dist + distance[next_node];
+            node_number[next_node2] = next_node;
         }
-        j++;
     }
-    printf("%d \n", get_element_sorted(distance,NNODES, 2));
+    reset(nDone2, Done2);
+
+    next_node = get_closest_node(conn, node, next_node, nDone, Done);
+    printf("next_node : %d \n", next_node);
+
+
+
+    //next_node2 = get_closest_node(conn, node, next_node, nDone, Done);
+
+
+    /*next_node = get_closest_node(conn, node, 0, nDone2, Done2);
+    printf("%d \n", next_node);
+    next_node = get_closest_node(conn, node, 0, nDone2, Done2);
+    printf("%d \n", next_node);
+    next_node = get_closest_node(conn, node, 0, nDone2, Done2);
+    printf("%d \n", next_node);*/
+
+
+
     print_tab_vert(nDone,NNODES);
     print_tab_vert(Done,NNODES);
     print_tab_hori(distance,NNODES);
-    print_tab_hori(node_number,NNODES);*/
-
-    double tab[5]={4,1,1,0,1};
-    double tab2[5]={4,1,1,0,1};
-    printf("%d \n", get_element_sorted(tab,5, 1));
+    print_tab_hori(node_number,NNODES);
 
     return 0;
 }
 
-void bubble_sort(double *tab, int len)
-{
-    double temp;
-    int i=0;
-    int j=0;
-    for(j=0;j<len;j++)
-    {
-        for(i=0;i<len-1;i++)
-        {
-            if(tab[i]>tab[i+1])
-            {
-                temp = tab[i];
-                tab[i]= tab[i+1];
-                tab[i+1]=temp;
-            }
 
-        }
-    }
-}
-int get_element_sorted(double *tab, int len, int n ) //przyjmuje argumenty sprawdza z tablica Done, i sprawdza czy jest bezposrednie dojscie
+int get_closest_node(struct con *r_c, struct nodes *r_n, int nnum, double *nDone2, double *Done2) //working
 {
-    double temp_tab[len];
-    int i=0;
-    for(i;i<len;i++) //make a copy of tab in order not to change original tab
-    {
-        temp_tab[i] = tab[i];
-    }
 
-    bubble_sort(temp_tab, len);
-    for(i=0;i<len;i++)
-    {
-        if(temp_tab[n] == tab[i])
-        {
-            //if(i<n) continue; //in case of n same values
-            return i;
-        }
-    }
-    //return n;
-}
-
-int get_every_node(struct con *r_c, struct nodes *r_n, int nnum, int order) //order - which node return (0 - closest, 1 - second and so on)
-{
-    int closest_node = EMPTYVAL;
+    double closest = INFINITY; //should be bigger than longest possible distance between 2 nodes
+    int closest_node = -1;
     int i=0;
     double temp = 0;
+
     while(1)
     {
         temp = dist_between_nodes(nnum, get_connection(nnum, i, r_c), r_n); //distance between nodes(nnum and that one on the and of i connection)
 
-        if(temp == EMPTYVAL) //no more nodes
+        if(temp == -1) //every connection checked - closest found
         {
-            return EMPTYVAL;
+            nDone2[closest_node] = -1;
+            Done2[find(Done2, -1)] = closest_node;
+            return closest_node;
         }
 
-        closest_node = get_connection(nnum, i, r_c);
-
-        if(i == order)
+        if(temp<closest)
         {
-            return closest_node;
+            if(find(nDone2, get_connection(nnum,i, r_c))!=-1) //get_connection convert number of connection too number of node, i is connection number
+            {
+                closest_node = get_connection(nnum,i, r_c);
+                closest = temp;
+            }
         }
 
         i++;
     }
-    return EMPTYVAL;
-
+    return -1;
 }
+
+
+void reset(double *nDone2, double *Done2)
+{
+    int i =0;
+    for(i=0;i<NNODES;i++)
+    {
+        nDone2[i] = i;
+        Done2[i] = EMPTYVAL;
+    }
+    nDone2[0]=-1;
+    //Done2[0]=0;
+}
+
+int find(double *tab, double val) //checking if element exists in tab
+{
+    int i=0;
+    for(i=0;i<NNODES; i++)
+    {
+        if(tab[i]== val) return i;
+    }
+    return -1;
+}
+
 
 void print_tab_vert(double *tab, int len)
 {
@@ -179,7 +242,7 @@ double dist_between_nodes(int n1, int n2, struct nodes *r_n)
     return (dist(r_n[n1].x, r_n[n1].y, r_n[n2].x, r_n[n2].y));
 }
 
-int get_connection(int node_number, int con_number, struct con *r_con)
+int get_connection(int node_number, int con_number, struct con *r_con) //return "con_number" connection from "node_number" node
 {
     int i=0;
     int c=0;
