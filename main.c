@@ -20,6 +20,7 @@ struct con
     double e; //where it ends
 };
 
+int lower_reach_cost(double *distance, double *nDone);
 void get_data_from_file(struct nodes *n_rcv, struct con *c_rcv);
 double dist(double x1, double y1, double x2, double y2);
 void init_table(double *r_dist, double *r_nnumber, double *r_nDone, double *r_Done, int s);
@@ -66,48 +67,8 @@ int main()
     double nDone2[NNODES];
     double Done2[NNODES];
 
-    /*for(i=0; i<5;i++)
-    {
-        next_node=0;
-        next_dist = 0;
-        reset(nDone2, Done2);
-        print_tab_hori(nDone2,NNODES);
-        print_tab_hori(Done2,NNODES);
 
-        printf("reset! \n");
-        while(1)
-        {
-
-            next_node = get_closest_node(conn, node, i, nDone2, Done2);
-            //reset(nDone2, Done2);
-            Done[find(Done, -1)] = next_node;
-            nDone[next_node] = -1;
-
-
-            printf("\n%d:   ", i);
-            printf("next_node: %d", next_node);
-
-            Sleep(1000);
-
-
-
-
-            if(next_node == -1) break;
-            next_dist = dist_between_nodes(i, next_node, node);
-
-            if(distance[next_node]>distance[i]+next_dist)
-            {
-                distance[next_node]=next_dist+distance[i];
-                node_number[next_node] = i;
-            }
-            //j++;
-
-            /////////////////////////////////////
-        }
-    }*/
-
-
-    //
+    int node_checking = 0;
     next_node = 0;
     int next_node2=-1;
     double temp_dist = 0;
@@ -117,35 +78,44 @@ int main()
 
     while(1)
     {
-        next_node2 = get_closest_node(conn, node, next_node, nDone2, Done2);
-        if(next_node2 == -1) break;
-        printf("%d \n", next_node2);
-        temp_dist = dist_between_nodes(next_node, next_node2, node);
+        printf("next_node : %d \n", next_node);
 
-        if(distance[next_node2]>temp_dist+distance[next_node]) //to be checked
+        while(1)
         {
-            distance[next_node2] = temp_dist + distance[next_node];
-            node_number[next_node2] = next_node;
+            next_node2 = get_closest_node(conn, node, next_node, nDone2, Done2);
+
+            temp_dist = dist_between_nodes(next_node, next_node2, node);
+            if(next_node2 == -1) break;
+            printf("%d \n", next_node2);
+            if(distance[next_node2]> temp_dist + distance[next_node])
+            {
+                distance[next_node2] = temp_dist + distance[next_node];
+                node_number[next_node2] = next_node;
+            }
         }
+        reset(nDone2, Done2);
+
+        //next_node = get_closest_node(conn, node, next_node, nDone, Done);
+
+        if(next_node == -1)
+        {
+            node_checking = lower_reach_cost(distance, nDone);
+            if(node_checking == -1) break;
+
+            print_tab_vert(nDone,NNODES);
+            print_tab_vert(Done,NNODES);
+            print_tab_hori(distance,NNODES);
+            print_tab_hori(node_number,NNODES);
+
+            Sleep(1000);
+            printf("node checking:  %d", node_checking);
+            nDone[node_checking] = -1;
+
+            //Sleep(1000);
+        }
+        next_node = get_closest_node(conn, node, node_checking, nDone, Done);
+
     }
-    reset(nDone2, Done2);
-
-    next_node = get_closest_node(conn, node, next_node, nDone, Done);
-    printf("next_node : %d \n", next_node);
-
-
-
-    //next_node2 = get_closest_node(conn, node, next_node, nDone, Done);
-
-
-    /*next_node = get_closest_node(conn, node, 0, nDone2, Done2);
-    printf("%d \n", next_node);
-    next_node = get_closest_node(conn, node, 0, nDone2, Done2);
-    printf("%d \n", next_node);
-    next_node = get_closest_node(conn, node, 0, nDone2, Done2);
-    printf("%d \n", next_node);*/
-
-
 
     print_tab_vert(nDone,NNODES);
     print_tab_vert(Done,NNODES);
@@ -153,6 +123,22 @@ int main()
     print_tab_hori(node_number,NNODES);
 
     return 0;
+}
+
+int lower_reach_cost(double *distance, double *nDone)
+{
+    int i=0, j=-1;
+    int min = INFINITY;
+    for(i=0; i<NNODES; i++)
+    {
+        if((distance[i]< min) && (find(nDone, i)!=-1))//and not checked
+        {
+            min = distance[i];
+            j=i;
+
+        }
+    }
+    return j;
 }
 
 
