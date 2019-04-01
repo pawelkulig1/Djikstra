@@ -1,29 +1,4 @@
-# README #
+# Djisktra Algorithm
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+This repository contains code written at beginning of my programming way, it is basically not well written code. Code is in C language, does not have Makefile. I want to keep it because it is part of my programming history.
+<br><b>If you want to keep your live, don't look there, but if you are ready for huge mess in code, brace yourself! You've been warned!<b>
